@@ -50,7 +50,9 @@ const LISTE_LOCAUX_DEPARTEMENTS = [
 
   "T006 Bureau international", "T106 Commercialisation de la mode", 
 
-  "T200 Design de la mode", "T300 Production de la mode"
+  "T200 Design de la mode", "T300 Production de la mode",
+  "1 Don",
+  "0 Inconnu",
 
 ].sort();
  
