@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-import { Plus, Trash2, Edit2, Monitor, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+import { Plus, Trash2, Edit2, Monitor, CheckCircle, XCircle, Search, Filter, Loader2 } from 'lucide-react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+ 
+// --- CONFIGURATION SUPABASE ---
+
+// Remplace ces valeurs par tes clés réelles (Project Settings > API)
+
+const SUPABASE_URL = 'https://ymyiqedxygahvubwrotw.supabase.co';
+
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlteWlxZWR4eWdhaHZ1Yndyb3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDQ5MTQsImV4cCI6MjA4Nzc4MDkxNH0.1jzp1VNZI6_L9BBKlHOih9UIE0xP767reLFdMmU7K4w';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
  
 const LISTE_LOCAUX_DEPARTEMENTS = [
 
@@ -38,27 +50,18 @@ const LISTE_LOCAUX_DEPARTEMENTS = [
 
   "T006 Bureau international", "T106 Commercialisation de la mode", 
 
-  "T200 Design de la mode", "T300 Production de la mode",
-  " 1 DON",
-  "0 Inconnu",
+  "T200 Design de la mode", "T300 Production de la mode"
+
 ].sort();
  
 export default function App() {
 
-  const [computers, setComputers] = useState(() => {
+  // --- ÉTATS ---
 
-    const saved = localStorage.getItem("inventaire_ordis");
+  const [computers, setComputers] = useState([]);
 
-    return saved ? JSON.parse(saved) : [];
+  const [loading, setLoading] = useState(true);
 
-  });
- 
-  useEffect(() => {
-
-    localStorage.setItem("inventaire_ordis", JSON.stringify(computers));
-
-  }, [computers]);
- 
   const [searchTerm, setSearchTerm] = useState("");
 
   const [filterLoc, setFilterLoc] = useState("Tous");
@@ -66,6 +69,8 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
 
   const [editingId, setEditingId] = useState(null);
+ 
+  // États du formulaire
 
   const [inputNom, setInputNom] = useState('');
 
@@ -77,6 +82,94 @@ export default function App() {
 
   const [showSuggestions, setShowSuggestions] = useState(false);
  
+  // --- APPELS BASE DE DONNÉES ---
+
+  useEffect(() => {
+
+    fetchComputers();
+
+  }, []);
+ 
+  async function fetchComputers() {
+
+    setLoading(true);
+
+    const { data, error } = await supabase
+
+      .from('ordinateurs')
+
+      .select('*')
+
+      .order('created_at', { ascending: false });
+
+    if (error) alert("Erreur de chargement : " + error.message);
+
+    else setComputers(data || []);
+
+    setLoading(false);
+
+  }
+ 
+  const handleSave = async () => {
+
+    if (!inputNom.trim() || !inputDepSearch.trim()) {
+
+      alert("Veuillez remplir tous les champs.");
+
+      return;
+
+    }
+ 
+    const payload = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel };
+ 
+    if (editingId) {
+
+      const { error } = await supabase.from('ordinateurs').update(payload).eq('id', editingId);
+
+      if (error) alert(error.message);
+
+    } else {
+
+      const { error } = await supabase.from('ordinateurs').insert([payload]);
+
+      if (error) alert(error.message);
+
+    }
+
+    fetchComputers();
+
+    closeModal();
+
+  };
+ 
+  const handleDelete = async (id) => {
+
+    if (window.confirm("Supprimer définitivement cet appareil ?")) {
+
+      const { error } = await supabase.from('ordinateurs').delete().eq('id', id);
+
+      if (!error) fetchComputers();
+
+    }
+
+  };
+ 
+  const toggleStatus = async (id, currentStatus) => {
+
+    const { error } = await supabase
+
+      .from('ordinateurs')
+
+      .update({ fonctionnel: !currentStatus })
+
+      .eq('id', id);
+
+    if (!error) fetchComputers();
+
+  };
+ 
+  // --- LOGIQUE UI ---
+
   const handleDepInputChange = (e) => {
 
     const value = e.target.value;
@@ -100,40 +193,6 @@ export default function App() {
       setShowSuggestions(false);
 
     }
-
-  };
- 
-  const selectSuggestion = (value) => {
-
-    setInputDepSearch(value);
-
-    setShowSuggestions(false);
-
-  };
- 
-  const handleSave = () => {
-
-    if (!inputNom.trim() || !inputDepSearch.trim()) {
-
-      alert("Veuillez remplir tous les champs.");
-
-      return;
-
-    }
-
-    const data = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel };
-
-    if (editingId) {
-
-      setComputers(computers.map(c => c.id === editingId ? { ...data, id: editingId } : c));
-
-    } else {
-
-      setComputers([...computers, { ...data, id: Date.now() }]);
-
-    }
-
-    closeModal();
 
   };
  
@@ -180,31 +239,30 @@ export default function App() {
   return (
 <div className="min-vh-100 bg-light d-flex flex-column">
 
-      {/* HEADER FULL WIDTH */}
+      {/* NAVBAR */}
 <nav className="navbar navbar-dark bg-primary shadow-sm px-3 py-3">
 <div className="container-fluid">
 <span className="navbar-brand fw-bold d-flex align-items-center gap-2 m-0">
 <Monitor size={28} /> 
-<span className="d-none d-sm-inline">Gestion d'Inventaire IT</span>
-<span className="d-inline d-sm-none">Inventaire IT</span>
+<span>Gestion Inventaire <span className="d-none d-md-inline">Connectée</span></span>
 </span>
-<button className="btn btn-light fw-bold shadow-sm d-flex align-items-center gap-2" onClick={() => openModal()}>
-<Plus size={20} /> <span className="d-none d-md-inline">Ajouter un appareil</span>
+<button className="btn btn-light fw-bold shadow-sm" onClick={() => openModal()}>
+<Plus size={20} className="me-1" /> <span className="d-none d-sm-inline">Ajouter un appareil</span>
 </button>
 </div>
 </nav>
  
-      {/* MAIN CONTENT AREA */}
+      {/* CONTENU PRINCIPAL */}
 <div className="container-fluid flex-grow-1 p-3 p-md-4">
-<div className="card border-0 shadow-sm h-100">
-<div className="card-body p-0 p-md-3">
+<div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+<div className="card-body p-0">
 
-            {/* FILTERS SECTION */}
-<div className="row g-3 p-3 border-bottom m-0 bg-white sticky-top shadow-sm-mobile">
+            {/* FILTRES */}
+<div className="row g-3 p-3 border-bottom m-0 bg-white sticky-top shadow-sm">
 <div className="col-12 col-md-6">
 <div className="input-group">
 <span className="input-group-text bg-light border-end-0"><Search size={18} /></span>
-<input type="text" className="form-control border-start-0 shadow-none" placeholder="Rechercher un laptop (ex: B200...)" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+<input type="text" className="form-control border-start-0 shadow-none" placeholder="Rechercher par ID ou nom..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 </div>
 </div>
 <div className="col-12 col-md-6">
@@ -219,104 +277,102 @@ export default function App() {
 </div>
 </div>
  
-            {/* RESPONSIVE TABLE CONTAINER */}
-<div className="table-responsive" style={{maxHeight: 'calc(100vh - 250px)', overflowY: 'auto'}}>
+            {/* TABLEAU */}
+<div className="table-responsive" style={{maxHeight: 'calc(100vh - 250px)', minHeight: '400px'}}>
+
+              {loading ? (
+<div className="text-center py-5 mt-5">
+<Loader2 className="animate-spin text-primary" size={48} />
+<p className="mt-2 text-muted">Synchronisation avec la base de données...</p>
+</div>
+
+              ) : (
 <table className="table table-hover align-middle mb-0">
 <thead className="table-dark sticky-top">
 <tr>
 <th className="ps-4 py-3">ID Appareil</th>
-<th className="py-3">Local & Département</th>
+<th className="py-3">Local / Département</th>
 <th className="py-3 text-center">État</th>
 <th className="pe-4 py-3 text-end">Actions</th>
 </tr>
 </thead>
 <tbody className="bg-white">
 
-                  {filteredData.length > 0 ? filteredData.map(c => (
+                    {filteredData.length > 0 ? filteredData.map(c => (
 <tr key={c.id}>
 <td className="ps-4 fw-bold text-primary">{c.nom}</td>
-<td>
-<span className="badge bg-secondary-subtle text-secondary border px-2 py-1">
-
-                          {c.local}
-</span>
-</td>
+<td><span className="badge bg-secondary-subtle text-secondary border px-2 py-1">{c.local}</span></td>
 <td className="text-center">
-<div className="form-check form-switch d-inline-block p-0">
+<div className="form-check form-switch d-inline-block">
 <input 
 
-                            className="form-check-input ms-0" 
+                              className="form-check-input ms-0" 
 
-                            type="checkbox" 
+                              type="checkbox" 
 
-                            style={{width: '2.5rem', height: '1.25rem', cursor: 'pointer'}}
+                              style={{width: '2.5rem', height: '1.25rem', cursor: 'pointer'}}
 
-                            checked={c.fonctionnel} 
+                              checked={c.fonctionnel} 
 
-                            onChange={() => setComputers(computers.map(item => item.id === c.id ? {...item, fonctionnel: !item.fonctionnel} : item))} 
+                              onChange={() => toggleStatus(c.id, c.fonctionnel)} 
 
-                          />
+                            />
 <div className={`fw-bold small mt-1 ${c.fonctionnel ? 'text-success' : 'text-danger'}`}>
 
-                            {c.fonctionnel ? 'OK' : 'PANNE'}
+                              {c.fonctionnel ? 'OK' : 'PANNE'}
 </div>
 </div>
 </td>
 <td className="text-end pe-4">
-<div className="d-flex justify-content-end gap-2">
-<button className="btn btn-outline-primary btn-sm rounded-3" onClick={() => openModal(c)}><Edit2 size={16}/></button>
-<button className="btn btn-outline-danger btn-sm rounded-3" onClick={() => { if(window.confirm("Supprimer ?")) setComputers(computers.filter(item => item.id !== c.id)) }}><Trash2 size={16}/></button>
-</div>
+<button className="btn btn-outline-primary btn-sm rounded-3 me-2" onClick={() => openModal(c)}><Edit2 size={16}/></button>
+<button className="btn btn-outline-danger btn-sm rounded-3" onClick={() => handleDelete(c.id)}><Trash2 size={16}/></button>
 </td>
 </tr>
 
-                  )) : (
+                    )) : (
 <tr>
-<td colSpan="4" className="text-center py-5 text-muted">
-<div className="py-4">
-<Search size={48} className="opacity-25 mb-3" />
-<p className="h5">Aucun résultat trouvé</p>
-</div>
-</td>
+<td colSpan="4" className="text-center py-5 text-muted">Aucun résultat trouvé.</td>
 </tr>
 
-                  )}
+                    )}
 </tbody>
 </table>
+
+              )}
 </div>
 </div>
 </div>
 </div>
  
-      {/* RESPONSIVE MODAL */}
+      {/* MODAL AVEC AUTO-COMPLÉTION */}
 
       {showModal && (
 <div className="modal d-block shadow" style={{background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)'}}>
 <div className="modal-dialog modal-dialog-centered modal-lg mx-2 mx-md-auto">
 <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 <div className="modal-header bg-primary text-white border-0 py-3">
-<h5 className="modal-title fw-bold">{editingId ? '🛠 Modifier' : '✨ Nouveau'} PC</h5>
+<h5 className="modal-title fw-bold">{editingId ? '🛠 Modifier' : '✨ Nouveau'} Appareil</h5>
 <button type="button" className="btn-close btn-close-white" onClick={closeModal}></button>
 </div>
 <div className="modal-body p-4 bg-white">
 <div className="row g-4">
-<div className="col-12">
-<label className="form-label fw-bold">Nom / Numéro d'inventaire</label>
+<div className="col-12 col-md-6">
+<label className="form-label fw-bold">Nom / Code du Laptop</label>
 <input type="text" className="form-control form-control-lg bg-light" placeholder="Ex: B200-PC-01" value={inputNom} onChange={(e) => setInputNom(e.target.value)} />
 </div>
-<div className="col-12 position-relative">
-<label className="form-label fw-bold">Rechercher le Département</label>
+<div className="col-12 col-md-6 position-relative">
+<label className="form-label fw-bold">Département (Recherche)</label>
 <div className="input-group">
 <span className="input-group-text bg-light"><Search size={18} /></span>
-<input type="text" className="form-control form-control-lg bg-light" placeholder="Tapez le code ou nom..." value={inputDepSearch} onChange={handleDepInputChange} onFocus={() => inputDepSearch.length > 0 && setShowSuggestions(true)} />
+<input type="text" className="form-control form-control-lg bg-light" placeholder="Chercher un local..." value={inputDepSearch} onChange={handleDepInputChange} />
 </div>
 
                     {showSuggestions && suggestions.length > 0 && (
-<ul className="list-group position-absolute w-100 shadow-xl z-3 mt-1 border" style={{maxHeight: '250px', overflowY: 'auto', left: '0', right: '0', padding: '0 12px'}}>
+<ul className="list-group position-absolute w-100 shadow-lg z-3 mt-1" style={{maxHeight: '200px', overflowY: 'auto'}}>
 
                         {suggestions.map((s, i) => (
-<li key={i} className="list-group-item list-group-item-action cursor-pointer p-3 fw-medium" onClick={() => selectSuggestion(s)} style={{cursor: 'pointer'}}>
-<span className="text-primary fw-bold me-2">{s.split(' ')[0]}</span> {s.split(' ').slice(1).join(' ')}
+<li key={i} className="list-group-item list-group-item-action" onClick={() => { setInputDepSearch(s); setShowSuggestions(false); }} style={{cursor: 'pointer'}}>
+<span className="text-primary fw-bold">{s.split(' ')[0]}</span> {s.split(' ').slice(1).join(' ')}
 </li>
 
                         ))}
@@ -327,8 +383,8 @@ export default function App() {
 <div className="col-12">
 <div className="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center border border-2 border-dashed">
 <div>
-<p className="mb-0 fw-bold text-dark">État opérationnel</p>
-<small className="text-muted">L'appareil est-il prêt à être utilisé ?</small>
+<p className="mb-0 fw-bold">État de marche</p>
+<small className="text-muted">Cochez si l'appareil est prêt à l'emploi</small>
 </div>
 <div className="form-check form-switch m-0">
 <input className="form-check-input" type="checkbox" style={{width: '3.5rem', height: '1.75rem'}} checked={isFonctionnel} onChange={(e) => setIsFonctionnel(e.target.checked)} />
