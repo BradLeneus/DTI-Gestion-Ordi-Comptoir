@@ -10,11 +10,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Remplace ces valeurs par tes clés réelles (Project Settings > API)
 
-const SUPABASE_URL = 'https://ymyiqedxygahvubwrotw.supabase.co';
+const VITE_SUPABASE_URL = 'https://ymyiqedxygahvubwrotw.supabase.co';
 
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlteWlxZWR4eWdhaHZ1Yndyb3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDQ5MTQsImV4cCI6MjA4Nzc4MDkxNH0.1jzp1VNZI6_L9BBKlHOih9UIE0xP767reLFdMmU7K4w';
+const VITE_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlteWlxZWR4eWdhaHZ1Yndyb3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDQ5MTQsImV4cCI6MjA4Nzc4MDkxNH0.1jzp1VNZI6_L9BBKlHOih9UIE0xP767reLFdMmU7K4w';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(VITE_SUPABASE_URL, VITE_SUPABASE_KEY);
  
 const LISTE_LOCAUX_DEPARTEMENTS = [
 
