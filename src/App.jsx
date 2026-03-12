@@ -20,7 +20,7 @@ const LISTE_LOCAUX_DEPARTEMENTS = [
   "D202 Direction des études", "D203 Ressources humaines", "D299 Communications & promo",
   "DU100 Dir. formation continue", "DU200 RAC", "DU300 Formation Nunavik",
   "DU399 Chaire UNESCO", "E200 Science de la nature", "E300 Langues",
-  "F000 Éducation spécialisée", "F100 Éducation à l'enfance", "F200 Travail social",
+  "F000 Éducation spécialisée", "F100 Éducation à l'enfance", "F200 Travail social", "FC000 Formation continue",
   "G015 Audiovisuel", "G130 Bibliothèque", "H100 Musique", "N100 Namur / Centre interculturel",
   "N101 Namur (clavier anglais)", "N125 MIFI", "R000 Sciences sociales",
   "R100 Psychologie", "S000 Informatique", "S135 École de mode",
