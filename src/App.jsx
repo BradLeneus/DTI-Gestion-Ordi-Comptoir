@@ -28,6 +28,7 @@ const LISTE_LOCAUX_DEPARTEMENTS = [
   "T200 Design de la mode", "T300 Production de la mode",
   "1 Don",
   "0 Inconnu",
+  "PRO",
 ].sort();
 
 export default function App() {
