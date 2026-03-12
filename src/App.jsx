@@ -134,7 +134,7 @@ export default function App() {
       setIsFonctionnel(true);
       setIsBonDomaine(true);
       setIsOkWifi(true);
-      setIsAutre(true);
+      setIsAutre(false);
       setEditingId(null);
     }
     setShowModal(true);
