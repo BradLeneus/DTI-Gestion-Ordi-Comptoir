@@ -44,6 +44,7 @@ export default function App() {
   const [isFonctionnel, setIsFonctionnel] = useState(true);
   const [isBonDomaine, setIsBonDomaine] = useState(true);
   const [isOkWifi, setIsOkWifi] = useState(true);
+  const [isAutre, setIsAutre] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -56,7 +57,7 @@ export default function App() {
     const { data, error } = await supabase
       .from('ordinateurs')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('nom', { ascending: true });
     if (error) alert("Erreur de chargement : " + error.message);
     else setComputers(data || []);
     setLoading(false);
@@ -67,7 +68,7 @@ export default function App() {
       alert("Veuillez remplir tous les champs.");
       return;
     }
-    const payload = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel, domaine: isBonDomaine, wifi: isOkWifi };
+    const payload = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel, domaine: isBonDomaine, wifi: isOkWifi, autre: isAutre };
     if (editingId) {
       const { error } = await supabase.from('ordinateurs').update(payload).eq('id', editingId);
       if (error) alert(error.message);
@@ -101,6 +102,11 @@ export default function App() {
     if (!error) fetchComputers();
   };
 
+  const toggleAutre = async (id, currentAutre) => {
+    const { error } = await supabase.from('ordinateurs').update({ autre: !currentAutre }).eq('id', id);
+    if (!error) fetchComputers();
+  };
+
   const handleDepInputChange = (e) => {
     const value = e.target.value;
     setInputDepSearch(value);
@@ -120,6 +126,7 @@ export default function App() {
       setIsFonctionnel(computer.fonctionnel);
       setIsBonDomaine(computer.domaine);
       setIsOkWifi(computer.wifi);
+      setIsAutre(computer.autre);
       setEditingId(computer.id);
     } else {
       setInputNom('');
@@ -127,6 +134,7 @@ export default function App() {
       setIsFonctionnel(true);
       setIsBonDomaine(true);
       setIsOkWifi(true);
+      setIsAutre(true);
       setEditingId(null);
     }
     setShowModal(true);
@@ -196,6 +204,7 @@ export default function App() {
                       <th className="py-3 text-center">État</th>
                       <th className="py-3 text-center">Domaine</th>
                       <th className="py-3 text-center">Wifi</th>
+                      <th className="py-3 text-center">Autre</th>
                       <th className="pe-4 py-3 text-end">Actions</th>
                     </tr>
                   </thead>
@@ -220,6 +229,12 @@ export default function App() {
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.wifi} onChange={() => toggleWifi(c.id, c.wifi)} />
                             <div className={`fw-bold small mt-1 ${c.wifi ? 'text-success' : 'text-danger'}`}>{c.wifi ? 'OK' : 'NON'}</div>
+                          </div>
+                        </td>
+                        <td className="text-center">
+                          <div className="form-check form-switch d-inline-block">
+                            <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.autre} onChange={() => toggleAutre(c.id, c.autre)} />
+                            <div className={`fw-bold small mt-1 ${c.autre ? 'text-success' : 'text-danger'}`}>{c.autre ? 'OUI' : 'NON'}</div>
                           </div>
                         </td>
                         <td className="text-end pe-4">
@@ -290,6 +305,14 @@ export default function App() {
                       <div><p className="mb-0 fw-bold">État du wifi</p><small className="text-muted">Wifi accessible</small></div>
                       <div className="form-check form-switch m-0">
                         <input className="form-check-input" type="checkbox" style={{ width: '3.5rem', height: '1.75rem' }} checked={isOkWifi} onChange={(e) => setIsOkWifi(e.target.checked)} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-12">
+                    <div className="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center border border-2 border-dashed">
+                      <div><p className="mb-0 fw-bold">Autre problème</p></div>
+                      <div className="form-check form-switch m-0">
+                        <input className="form-check-input" type="checkbox" style={{ width: '3.5rem', height: '1.75rem' }} checked={isAutre} onChange={(e) => setIsAutre(e.target.checked)} />
                       </div>
                     </div>
                   </div>
