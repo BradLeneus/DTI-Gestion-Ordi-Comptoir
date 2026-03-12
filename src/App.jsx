@@ -149,6 +149,12 @@ export default function App() {
     return matchSearch && matchLoc;
   });
 
+  const totalResults = filteredData.length;
+  const fonctionnelCount = filteredData.filter(c => c.fonctionnel).length;
+  const domaineCount = filteredData.filter(c => c.domaine).length;
+  const wifiCount = filteredData.filter(c => c.wifi).length;
+  const autreCount = filteredData.filter(c => c.autre).length;
+
   return (
     <div className="vw-100 min-vh-100 bg-light d-flex flex-column m-0 p-0 overflow-x-hidden">
       
@@ -200,12 +206,12 @@ export default function App() {
                 <table className="table table-hover align-middle mb-0 w-100">
                   <thead className="table-dark sticky-top">
                     <tr>
-                      <th className="ps-4 py-3">ID Appareil</th>
+                      <th className="ps-4 py-3">ID Appareil ({totalResults})</th>
                       <th className="py-3">Local / Département</th>
-                      <th className="py-3 text-center">État</th>
-                      <th className="py-3 text-center">Domaine</th>
-                      <th className="py-3 text-center">Wifi</th>
-                      <th className="py-3 text-center">Autre</th>
+                      <th className="py-3 text-center">État ({fonctionnelCount})</th>
+                      <th className="py-3 text-center">Domaine ({domaineCount})</th>
+                      <th className="py-3 text-center">Wifi ({wifiCount})</th>
+                      <th className="py-3 text-center">Autre ({autreCount})</th>
                       <th className="pe-4 py-3 text-end">Actions</th>
                     </tr>
                   </thead>
