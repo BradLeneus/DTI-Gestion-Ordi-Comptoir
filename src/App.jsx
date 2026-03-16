@@ -223,7 +223,7 @@ export default function App() {
                         <td className="text-center">
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.fonctionnel} onChange={() => toggleStatus(c.id, c.fonctionnel)} />
-                            <div className={`fw-bold small mt-1 ${c.fonctionnel ? 'text-success' : 'text-danger'}`}>{c.fonctionnel ? 'OK' : 'PANNE'}</div>
+                            <div className={`fw-bold small mt-4 ${c.fonctionnel ? 'text-success' : 'text-danger'}`}>{c.fonctionnel ? 'S\'ALLUME' : 'PANNE'}</div>
                           </div>
                         </td>
                         <td className="text-center">
