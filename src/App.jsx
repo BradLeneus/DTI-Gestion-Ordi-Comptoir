@@ -45,6 +45,7 @@ export default function App() {
   const [isFonctionnel, setIsFonctionnel] = useState(true);
   const [isBonDomaine, setIsBonDomaine] = useState(true);
   const [isOkWifi, setIsOkWifi] = useState(true);
+  const [isBatteryOk, setIsBatteryOk] = useState(true);
   const [isAutre, setIsAutre] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -69,7 +70,7 @@ export default function App() {
       alert("Veuillez remplir tous les champs.");
       return;
     }
-    const payload = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel, domaine: isBonDomaine, wifi: isOkWifi, autre: isAutre };
+    const payload = { nom: inputNom, local: inputDepSearch, fonctionnel: isFonctionnel, domaine: isBonDomaine, wifi: isOkWifi, battery: isBatteryOk, autre: isAutre };
     if (editingId) {
       const { error } = await supabase.from('ordinateurs').update(payload).eq('id', editingId);
       if (error) alert(error.message);
@@ -103,6 +104,11 @@ export default function App() {
     if (!error) fetchComputers();
   };
 
+  const toggleBattery = async (id, currentBattery) => {
+    const { error } = await supabase.from('ordinateurs').update({ battery: !currentBattery }).eq('id', id);
+    if (!error) fetchComputers();
+  };
+
   const toggleAutre = async (id, currentAutre) => {
     const { error } = await supabase.from('ordinateurs').update({ autre: !currentAutre }).eq('id', id);
     if (!error) fetchComputers();
@@ -127,6 +133,7 @@ export default function App() {
       setIsFonctionnel(computer.fonctionnel);
       setIsBonDomaine(computer.domaine);
       setIsOkWifi(computer.wifi);
+      setIsBatteryOk(computer.battery);
       setIsAutre(computer.autre);
       setEditingId(computer.id);
     } else {
@@ -135,6 +142,7 @@ export default function App() {
       setIsFonctionnel(true);
       setIsBonDomaine(true);
       setIsOkWifi(true);
+      setIsBatteryOk(true);
       setIsAutre(false);
       setEditingId(null);
     }
@@ -153,41 +161,41 @@ export default function App() {
   const fonctionnelCount = filteredData.filter(c => c.fonctionnel).length;
   const domaineCount = filteredData.filter(c => c.domaine).length;
   const wifiCount = filteredData.filter(c => c.wifi).length;
+  const batteryCount = filteredData.filter(c => c.battery).length;
   const autreCount = filteredData.filter(c => c.autre).length;
 
   return (
-    <div className="vw-100 min-vh-100 bg-light d-flex flex-column m-0 p-0 overflow-x-hidden">
+    <div className="vw-100 min-vh-100 d-flex flex-column m-0 p-0 overflow-x-hidden" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
       
       {/* NAVBAR - Full Width */}
-      <nav className="navbar navbar-dark bg-primary shadow-sm px-4 py-3 w-100">
+      <nav className="navbar navbar-dark shadow-sm px-4 py-3 w-100" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
         <div className="container-fluid p-0">
-          <span className="navbar-brand fw-bold d-flex align-items-center gap-2 m-0">
+          <span className="navbar-brand fw-bold d-flex align-items-center gap-2 m-0" style={{ color: '#98f19d' }}>
             <Monitor size={28} />
             <span>Gestion Inventaire </span>
           </span>
-          <button className="btn btn-light fw-bold shadow-sm" onClick={() => openModal()}>
+          <button className="btn btn-light fw-bold shadow-sm" onClick={() => openModal()} style={{ color: '#98f19d', borderColor: '#98f19d', backgroundColor: '#113c2d' }}>
             <Plus size={20} className="me-1" /> <span className="d-none d-sm-inline">Ajouter un appareil</span>
           </button>
         </div>
       </nav>
 
       {/* CONTENU PRINCIPAL - container-fluid fills width */}
-      <div className="container-fluid flex-grow-1 p-3 p-md-4">
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden w-100">
-          <div className="card-body p-0">
-
+      <div className="container-fluid flex-grow-1 p-3 p-md-4" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
+        <div className="card border-0 shadow-sm rounded-4 overflow-hidden w-100" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
+                  <div className="card-body p-0 theme-dark">
             {/* FILTRES */}
-            <div className="row g-3 p-3 border-bottom m-0 bg-white sticky-top shadow-sm w-100">
+            <div className="row g-3 p-3 border-bottom m-0 sticky-top shadow-sm w-100" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
               <div className="col-12 col-md-6">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><Search size={18} /></span>
-                  <input type="text" className="form-control border-start-0 shadow-none" placeholder="Rechercher par ID ou nom..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                  <span className="input-group-text" style={{ backgroundColor: '#113c2d', borderRight: '0', color: '#98f19d' }}><Search size={18} /></span>
+                  <input type="text" className="form-control border-start-0 shadow-none" style={{ backgroundColor: '#113c2d', color: '#ffffff', borderLeft: '0' }} placeholder="Rechercher par ID ou nom..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
               </div>
               <div className="col-12 col-md-6">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><Filter size={18} /></span>
-                  <select className="form-select border-start-0 shadow-none" value={filterLoc} onChange={(e) => setFilterLoc(e.target.value)}>
+                  <span className="input-group-text" style={{ backgroundColor: '#113c2d', borderRight: '0', color: '#98f19d' }}><Filter size={18} /></span>
+                  <select className="form-select border-start-0 shadow-none" style={{ backgroundColor: '#113c2d', color: '#ffffff', borderLeft: '0' }} value={filterLoc} onChange={(e) => setFilterLoc(e.target.value)}>
                     <option value="Tous">Tous les départements</option>
                     {LISTE_LOCAUX_DEPARTEMENTS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                   </select>
@@ -199,49 +207,56 @@ export default function App() {
             <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 220px)', minHeight: '400px' }}>
               {loading ? (
                 <div className="text-center py-5 mt-5">
-                  <Loader2 className="animate-spin text-primary" size={48} />
-                  <p className="mt-2 text-muted">Synchronisation...</p>
+                  <Loader2 className="animate-spin" size={48} style={{ color: '#98f19d' }} />
+                  <p className="mt-2" style={{ color: '#98f19d' }}>Synchronisation...</p>
                 </div>
               ) : (
-                <table className="table table-hover align-middle mb-0 w-100">
-                  <thead className="table-dark sticky-top">
+                <table className="table table-hover align-middle mb-0 w-100 theme-dark">
+                  <thead className="sticky-top theme-dark">
                     <tr>
                       <th className="ps-4 py-3">ID Appareil ({totalResults})</th>
                       <th className="py-3">Local / Département</th>
                       <th className="py-3 text-center">État ({fonctionnelCount})</th>
                       <th className="py-3 text-center">Domaine ({domaineCount})</th>
                       <th className="py-3 text-center">Wifi ({wifiCount})</th>
+                      <th className="py-3 text-center">Batterie ({batteryCount})</th>
                       <th className="py-3 text-center">Autre ({autreCount})</th>
                       <th className="pe-4 py-3 text-end">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white">
+                  <tbody style={{ backgroundColor: '#113c2d', color: '#98f19d' }}>
                     {filteredData.length > 0 ? filteredData.map(c => (
-                      <tr key={c.id}>
-                        <td className="ps-4 fw-bold text-primary">{c.nom}</td>
-                        <td><span className="badge bg-secondary-subtle text-secondary border px-2 py-1">{c.local}</span></td>
+                      <tr key={c.id} style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
+                        <td className="ps-4 fw-bold" style={{ color: '#98f19d' }}>{c.nom}</td>
+                        <td><span className="badge bg-dark text-light border px-2 py-1">{c.local}</span></td>
                         <td className="text-center">
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.fonctionnel} onChange={() => toggleStatus(c.id, c.fonctionnel)} />
-                            <div className={`fw-bold small mt-4 ${c.fonctionnel ? 'text-success' : 'text-danger'}`}>{c.fonctionnel ? 'S\'ALLUME' : 'PANNE'}</div>
+                            <div className={`fw-bold small mt-4`} style={{ color: c.fonctionnel ? '#98f19d' : '#f03e3e' }}>{c.fonctionnel ? 'S\'ALLUME' : 'PANNE'}</div>
                           </div>
                         </td>
                         <td className="text-center">
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.domaine} onChange={() => toggleDomaine(c.id, c.domaine)} />
-                            <div className={`fw-bold small mt-1 ${c.domaine ? 'text-success' : 'text-danger'}`}>{c.domaine ? 'BON' : 'NON'}</div>
+                            <div className={`fw-bold small mt-1`} style={{ color: c.domaine ? '#98f19d' : '#f03e3e' }}>{c.domaine ? 'BON' : 'NON'}</div>
                           </div>
                         </td>
                         <td className="text-center">
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.wifi} onChange={() => toggleWifi(c.id, c.wifi)} />
-                            <div className={`fw-bold small mt-1 ${c.wifi ? 'text-success' : 'text-danger'}`}>{c.wifi ? 'OK' : 'NON'}</div>
+                            <div className={`fw-bold small mt-1`} style={{ color: c.wifi ? '#98f19d' : '#f03e3e' }}>{c.wifi ? 'OK' : 'NON'}</div>
+                          </div>
+                        </td>
+                        <td className="text-center">
+                          <div className="form-check form-switch d-inline-block">
+                            <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.battery} onChange={() => toggleBattery(c.id, c.battery)} />
+                            <div className={`fw-bold small mt-1`} style={{ color: c.battery ? '#98f19d' : '#f03e3e' }}>{c.battery ? 'OK' : 'NON'}</div>
                           </div>
                         </td>
                         <td className="text-center">
                           <div className="form-check form-switch d-inline-block">
                             <input className="form-check-input ms-0" type="checkbox" style={{ width: '2.5rem', height: '1.25rem', cursor: 'pointer' }} checked={c.autre} onChange={() => toggleAutre(c.id, c.autre)} />
-                            <div className={`fw-bold small mt-1 ${c.autre ? 'text-success' : 'text-danger'}`}>{c.autre ? 'OUI' : 'NON'}</div>
+                            <div className={`fw-bold small mt-1`} style={{ color: c.autre ? '#98f19d' : '#f03e3e' }}>{c.autre ? 'OUI' : 'NON'}</div>
                           </div>
                         </td>
                         <td className="text-end pe-4">
@@ -250,7 +265,7 @@ export default function App() {
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan="6" className="text-center py-5 text-muted">Aucun résultat trouvé.</td></tr>
+                      <tr><td colSpan="6" className="text-center py-5" style={{ color: '#98f19d' }}>Aucun résultat trouvé.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -264,28 +279,28 @@ export default function App() {
       {showModal && (
         <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-              <div className="modal-header bg-primary text-white border-0 py-3">
+            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style={{ backgroundColor: '#154b34', color: '#98f19d' }}>
+              <div className="modal-header" style={{ backgroundColor: '#154b34', color: '#98f19d', border: '0', padding: '1rem 1rem 0.75rem' }}>
                 <h5 className="modal-title fw-bold">{editingId ? ' Modifier' : ' Nouveau'} Appareil</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={closeModal}></button>
               </div>
-              <div className="modal-body p-4 bg-white">
+              <div className="modal-body p-4" style={{ backgroundColor: '#113c2d', color: '#98f19d' }}>
                 <div className="row g-4">
                   <div className="col-12 col-md-6">
-                    <label className="form-label fw-bold">Nom / Code du Laptop</label>
-                    <input type="text" className="form-control form-control-lg bg-light" placeholder="Ex: B200-PC-01" value={inputNom} onChange={(e) => setInputNom(e.target.value)} />
+                    <label className="form-label fw-bold" style={{ color: '#98f19d' }}>Nom / Code du Laptop</label>
+                    <input type="text" className="form-control form-control-lg" style={{ backgroundColor: '#113c2d', color: '#98f19d', border: '1px solid #2c5f4e' }} placeholder="Ex: B200-PC-01" value={inputNom} onChange={(e) => setInputNom(e.target.value)} />
                   </div>
                   <div className="col-12 col-md-6 position-relative">
-                    <label className="form-label fw-bold">Département (Recherche)</label>
+                    <label className="form-label fw-bold" style={{ color: '#98f19d' }}>Département (Recherche)</label>
                     <div className="input-group">
-                      <span className="input-group-text bg-light"><Search size={18} /></span>
-                      <input type="text" className="form-control form-control-lg bg-light" placeholder="Chercher un local..." value={inputDepSearch} onChange={handleDepInputChange} />
+                      <span className="input-group-text" style={{ backgroundColor: '#113c2d', color: '#98f19d' }}><Search size={18} /></span>
+                      <input type="text" className="form-control form-control-lg" style={{ backgroundColor: '#113c2d', color: '#98f19d', border: '1px solid #2c5f4e' }} placeholder="Chercher un local..." value={inputDepSearch} onChange={handleDepInputChange} />
                     </div>
                     {showSuggestions && suggestions.length > 0 && (
-                      <ul className="list-group position-absolute w-100 shadow-lg z-3 mt-1" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      <ul className="list-group position-absolute w-100 shadow-lg z-3 mt-1" style={{ maxHeight: '200px', overflowY: 'auto', backgroundColor: '#113c2d', color: '#98f19d' }}>
                         {suggestions.map((s, i) => (
-                          <li key={i} className="list-group-item list-group-item-action" onClick={() => { setInputDepSearch(s); setShowSuggestions(false); }} style={{ cursor: 'pointer' }}>
-                            <span className="text-primary fw-bold">{s.split(' ')[0]}</span> {s.split(' ').slice(1).join(' ')}
+                          <li key={i} className="list-group-item list-group-item-action" onClick={() => { setInputDepSearch(s); setShowSuggestions(false); }} style={{ cursor: 'pointer', backgroundColor: '#154b34', color: '#98f19d' }}>
+                            <span className="fw-bold" style={{ color: '#98f19d' }}>{s.split(' ')[0]}</span> {s.split(' ').slice(1).join(' ')}
                           </li>
                         ))}
                       </ul>
@@ -312,6 +327,14 @@ export default function App() {
                       <div><p className="mb-0 fw-bold">État du wifi</p><small className="text-muted">Wifi accessible</small></div>
                       <div className="form-check form-switch m-0">
                         <input className="form-check-input" type="checkbox" style={{ width: '3.5rem', height: '1.75rem' }} checked={isOkWifi} onChange={(e) => setIsOkWifi(e.target.checked)} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-12">
+                    <div className="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center border border-2 border-dashed">
+                      <div><p className="mb-0 fw-bold">État de la batterie</p><small className="text-muted">Batterie en bonne condition</small></div>
+                      <div className="form-check form-switch m-0">
+                        <input className="form-check-input" type="checkbox" style={{ width: '3.5rem', height: '1.75rem' }} checked={isBatteryOk} onChange={(e) => setIsBatteryOk(e.target.checked)} />
                       </div>
                     </div>
                   </div>

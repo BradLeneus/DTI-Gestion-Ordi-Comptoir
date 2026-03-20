@@ -50,8 +50,107 @@ button:hover {
   border-color: #646cff;
 }
 button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+.form-control:focus,
+.form-control:focus-visible,
+.btn:focus,
+.btn:focus-visible,
+.form-check-input:focus,
+.form-check-input:focus-visible,
+.navbar:focus,
+.navbar:focus-visible,
+.table:focus,
+.table:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.5) !important;
+  border-color: #ffffff !important;
+}
+
+/* remove default browser focus rings for harder override */
+*:focus {
+  outline: none !important;
+}
+
+*:focus-visible {
+  outline: 2px solid #ffffff !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.theme-dark {
+  background-color: #154b34 !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .table {
+  background-color: #154b34 !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .table th,
+.theme-dark .table td,
+.theme-dark .table thead,
+.theme-dark .table tbody,
+.theme-dark .table tr {
+  background-color: #154b34 !important;
+  color: #ffffff !important;
+  border-color: #0f3d2f !important;
+}
+
+.theme-dark .badge {
+  background-color: #113c2d !important;
+  color: #ffffff !important;
+  border: 1px solid #2c5f4e !important;
+}
+
+.theme-dark .btn-outline-primary {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.theme-dark .btn-outline-primary:hover {
+  background-color: #ffffff !important;
+  color: #154b34 !important;
+}
+
+.theme-dark .btn-outline-danger {
+  border-color: #f03e3e !important;
+  color: #f03e3e !important;
+}
+
+.theme-dark .btn-outline-danger:hover {
+  background-color: #f03e3e !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .bg-light,
+.theme-dark .bg-white {
+  background-color: #0f1f1a !important;
+  color: #ffffff !important;
+}
+
+.theme-dark .text-muted,
+.theme-dark .text-secondary {
+  color: #d0d0d0 !important;
+}
+
+.theme-dark .border,
+.theme-dark .table,
+.theme-dark .table th,
+.theme-dark .table td {
+  border-color: #2c5f4f !important;
 }
 
 @media (prefers-color-scheme: light) {
